@@ -2,6 +2,8 @@ package com.malevgen.parser;
 
 import com.malevgen.model.Catalog;
 import com.malevgen.model.RentItem;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,13 +13,13 @@ import java.io.IOException;
 import java.util.*;
 
 public class StroyrentParser implements Parser {
+    private static Logger logger = LogManager.getLogger(StroyrentParser.class.getName());
     private List<Catalog> catalogs = new ArrayList<>();
     private List<RentItem> rentItems = new ArrayList<>();
 
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getName() + ", StroyrentParser: Start: " + new Date());
-
+        logger.info("{}, StroyrentParser: Start: {}", Thread.currentThread().getName(), new Date());
         try {
             Document rentDocument = Jsoup.connect("https://stroyrent.ru/rent/").get();
             Elements rentElements = rentDocument.getElementsByClass("col-lg-2 col-md-4 col-sm-6 col-xs-6").attr("class", "item-title");
@@ -30,9 +32,9 @@ public class StroyrentParser implements Parser {
             catalogs.forEach(this::refreshRentItem);
 
         } catch (IOException e) {
-            System.out.println("Ошибка StroyrentParser: " + e);
+            logger.warn("Ошибка StroyrentParser:", e);
         }
-        System.out.println("StroyrentParser \n catalogs.size = " + this.catalogs.size() + "; rentItems.size = " + this.rentItems.size());
+        logger.info("StroyrentParser: catalogs.size = {}, rentItems.size = {}", this.catalogs.size(), this.rentItems.size());
 
     }
 
@@ -56,7 +58,7 @@ public class StroyrentParser implements Parser {
 
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(e);
         }
 
 

@@ -2,6 +2,8 @@ package com.malevgen.parser;
 
 import com.malevgen.model.Catalog;
 import com.malevgen.model.RentItem;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,12 +13,13 @@ import java.io.IOException;
 import java.util.*;
 
 public class PetrovichParser implements Parser {
+    private static Logger logger = LogManager.getLogger(PetrovichParser.class.getName());
     private List<Catalog> catalogs = new ArrayList<>();
     private List<RentItem> rentItems = new ArrayList<>();
 
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getName() + ", PetrovichParser: Start: " + new Date());
+        logger.info("{}, PetrovichParser: Start: {}", Thread.currentThread().getName(), new Date());
         try {
             Document rentDocument = Jsoup.connect("https://petrovich.ru/services/equipment-rent/").get();
             Elements rentElements = rentDocument.getElementsByClass("rent__wrapper").select("a[href]");
@@ -28,10 +31,9 @@ public class PetrovichParser implements Parser {
             }
             catalogs.forEach(this::refreshRentItem);
         } catch (IOException e) {
-            System.out.println("Ошибка PetrovichParser: " + e);
+            logger.warn("Ошибка PetrovichParser:", e);
         }
-
-        System.out.println("PetrovichParser \n catalogs.size = " + this.catalogs.size() + "; rentItems.size = " + this.rentItems.size());
+        logger.info("PetrovichParser: catalogs.size = {}, rentItems.size = {}", this.catalogs.size(), this.rentItems.size());
     }
 
     private void refreshRentItem(Catalog catalog) {
@@ -50,7 +52,7 @@ public class PetrovichParser implements Parser {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Ошибка PetrovichParser: refreshRentItem:" + e);
+            logger.warn(e);
         }
     }
 
